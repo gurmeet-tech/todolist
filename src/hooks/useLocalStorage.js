@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+const WRITE_DELAY = 150;
+
 export default function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
@@ -10,18 +12,22 @@ export default function useLocalStorage(key, initialValue) {
     }
   });
 
-  const keyRef = useRef(key);
-  useEffect(() => {
-    keyRef.current = key;
-  }, [key]);
+  const timerRef = useRef(null);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(keyRef.current, JSON.stringify(value));
-    } catch {
-      /* storage unavailable — ignore */
-    }
-  }, [value]);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        /* storage unavailable — ignore */
+      }
+    }, WRITE_DELAY);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [key, value]);
 
   return [value, setValue];
 }

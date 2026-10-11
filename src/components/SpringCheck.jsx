@@ -10,10 +10,16 @@ const VISUAL_DURATION = 0.2;
 const RULE_END = 0.84;
 const SWELL = 0.35;
 const TICK_PATH = String(Tick02Icon[0][1].d);
-const ORIGIN = { left: 'left center', center: 'center', right: 'right center', none: 'left center' };
+const ORIGIN = {
+  left: 'left center',
+  center: 'center',
+  right: 'right center',
+  none: 'left center'
+};
 
 const clamp01 = value => Math.min(1, Math.max(0, value));
-const zetaOf = bounce => (bounce <= 0 ? 1 : -Math.log(bounce) / Math.sqrt(Math.PI ** 2 + Math.log(bounce) ** 2));
+const zetaOf = bounce =>
+  bounce <= 0 ? 1 : -Math.log(bounce) / Math.sqrt(Math.PI ** 2 + Math.log(bounce) ** 2);
 
 const readings = (t, doneOpacity, strikeLag) => {
   const held = clamp01(t);
@@ -150,7 +156,13 @@ export default function SpringCheck({
           <span className="spring-check__ring" aria-hidden="true" />
           <span ref={fillRef} className="spring-check__fill" style={{ transform: r.fill }} />
           <svg className="spring-check__tick" viewBox="0 0 24 24" aria-hidden="true">
-            <path ref={tickRef} d={TICK_PATH} pathLength={1} strokeDasharray={1} style={{ strokeDashoffset: r.tick }} />
+            <path
+              ref={tickRef}
+              d={TICK_PATH}
+              pathLength={1}
+              strokeDasharray={1}
+              style={{ strokeDashoffset: r.tick }}
+            />
           </svg>
         </span>
       </span>
@@ -159,7 +171,12 @@ export default function SpringCheck({
           {label}
         </span>
         {strike !== 'none' ? (
-          <span ref={ruleRef} className="spring-check__rule" aria-hidden="true" style={{ transform: r.rule }} />
+          <span
+            ref={ruleRef}
+            className="spring-check__rule"
+            aria-hidden="true"
+            style={{ transform: r.rule }}
+          />
         ) : null}
       </span>
     </button>

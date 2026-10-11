@@ -31,7 +31,6 @@ export default function TodoItem({ todo, onToggle, onDelete }) {
         <span className="tag__dot" aria-hidden="true" />
         {type === 'urgent' ? 'Urgent' : 'Day'}
       </span>
-
       <button
         type="button"
         className="todo__delete"

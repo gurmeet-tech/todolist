@@ -90,7 +90,9 @@
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
-  transition: transform 150ms ease, background 150ms ease;
+  transition:
+    transform 150ms ease,
+    background 150ms ease;
 }
 
 .nav__play:hover {

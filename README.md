@@ -24,10 +24,10 @@ Open the printed local URL.
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Production build to `dist/` |
+| Command           | Description                  |
+| ----------------- | ---------------------------- |
+| `npm run dev`     | Start the Vite dev server    |
+| `npm run build`   | Production build to `dist/`  |
 | `npm run preview` | Preview the production build |
 
 ## Project structure

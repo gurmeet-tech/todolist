@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mic01Icon, PlusSignIcon } from '@hugeicons/core-free-icons';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ListViewIcon, Mic01Icon, PlusSignIcon } from '@hugeicons/core-free-icons';
 
 import Icon from './components/Icon';
 import Navbar from './components/Navbar';
 import MathGame from './components/MathGame';
 import TodoItem from './components/TodoItem';
 import useLocalStorage from './hooks/useLocalStorage';
+import { makeId, sortTodos } from './lib/todos';
 import './App.css';
-
-const makeId = () =>
-  typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 export default function App() {
   const [todos, setTodos] = useLocalStorage('todos', []);
@@ -20,6 +16,7 @@ export default function App() {
   const [listening, setListening] = useState(false);
   const [playing, setPlaying] = useState(false);
   const inputRef = useRef(null);
+  const askUrgentRef = useRef(null);
   const recognitionRef = useRef(null);
   const baseTextRef = useRef('');
 
@@ -27,24 +24,13 @@ export default function App() {
     typeof window !== 'undefined' &&
     Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  const add = (raw, type) => {
-    const value = raw.trim();
-    if (!value) return;
-    setTodos(prev => [{ id: makeId(), text: value, done: false, type }, ...prev]);
-  };
+  const stopMic = useCallback(() => {
+    recognitionRef.current?.stop?.();
+    recognitionRef.current = null;
+    setListening(false);
+  }, []);
 
-  const requestAdd = event => {
-    event.preventDefault();
-    if (!draft.trim()) return;
-    setAsking(true);
-  };
-
-  const confirmAdd = type => {
-    add(draft, type);
-    setDraft('');
-    setAsking(false);
-    inputRef.current?.focus();
-  };
+  useEffect(() => () => recognitionRef.current?.stop?.(), []);
 
   const startMic = () => {
     if (!micSupported || listening) return;
@@ -68,30 +54,50 @@ export default function App() {
     setListening(true);
   };
 
-  const stopMic = () => recognitionRef.current?.stop();
-
   const toggleMic = () => {
     if (listening) stopMic();
     else startMic();
   };
+
+  const requestAdd = event => {
+    event.preventDefault();
+    if (!draft.trim()) return;
+    stopMic();
+    setAsking(true);
+  };
+
+  const confirmAdd = useCallback(
+    type => {
+      const value = draft.trim();
+      if (value) {
+        setTodos(prev => [{ id: makeId(), text: value, done: false, type }, ...prev]);
+      }
+      stopMic();
+      setDraft('');
+      setAsking(false);
+      inputRef.current?.focus();
+    },
+    [draft, setTodos, stopMic]
+  );
+
+  useEffect(() => {
+    if (!asking) return undefined;
+    askUrgentRef.current?.focus();
+    const onKey = event => {
+      if (event.key === 'Escape') setAsking(false);
+      else if (event.key === '1') confirmAdd('urgent');
+      else if (event.key === '2') confirmAdd('day');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [asking, confirmAdd]);
 
   const toggle = (id, done) =>
     setTodos(prev => prev.map(todo => (todo.id === id ? { ...todo, done } : todo)));
 
   const remove = id => setTodos(prev => prev.filter(todo => todo.id !== id));
 
-  const ordered = useMemo(
-    () =>
-      todos
-        .map((todo, position) => ({ todo, position }))
-        .sort((a, b) => {
-          const rankA = a.todo.type === 'urgent' ? 0 : 1;
-          const rankB = b.todo.type === 'urgent' ? 0 : 1;
-          return rankA - rankB || a.position - b.position;
-        })
-        .map(entry => entry.todo),
-    [todos]
-  );
+  const ordered = useMemo(() => sortTodos(todos), [todos]);
 
   return (
     <div className="app">
@@ -129,12 +135,17 @@ export default function App() {
         {asking ? (
           <div className="ask" role="dialog" aria-label="Choose task type">
             <span className="ask__label">Add to</span>
-            <button type="button" className="ask__option" onClick={() => confirmAdd('urgent')}>
-              <span className="mode__dot mode__dot--urgent" aria-hidden="true" />
+            <button
+              ref={askUrgentRef}
+              type="button"
+              className="ask__option"
+              onClick={() => confirmAdd('urgent')}
+            >
+              <span className="dot dot--urgent" aria-hidden="true" />
               Urgent
             </button>
             <button type="button" className="ask__option" onClick={() => confirmAdd('day')}>
-              <span className="mode__dot mode__dot--day" aria-hidden="true" />
+              <span className="dot dot--day" aria-hidden="true" />
               Day
             </button>
             <button
@@ -155,7 +166,13 @@ export default function App() {
             ))}
           </ul>
         ) : (
-          <p className="empty">No tasks</p>
+          <div className="empty">
+            <span className="empty__icon" aria-hidden="true">
+              <Icon icon={ListViewIcon} size={20} />
+            </span>
+            <p className="empty__title">No tasks yet</p>
+            <p className="empty__hint">Add one above to get started</p>
+          </div>
         )}
       </main>
 
