@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: clamp(40px, 10vh, 112px) 20px 56px;
+  padding: clamp(104px, 15vh, 148px) 20px 56px;
   background: var(--canvas);
 }
 
@@ -77,20 +77,17 @@
 
 .add:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
 }
 
 /* ---- List ---- */
 
 .list {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin: clamp(20px, 4vh, 28px) 0 0;
   padding: 0;
-  background: var(--elevated);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-whisper);
-  overflow: hidden;
 }
 
 .todo {
@@ -98,11 +95,23 @@
   align-items: center;
   gap: 10px;
   padding: 8px 8px 8px 18px;
-  border-top: 1px solid var(--hairline);
+  background: var(--elevated);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: var(--shadow-whisper);
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
-.todo:first-child {
-  border-top: 0;
+.todo.is-done {
+  border-color: #e5e7eb;
+  box-shadow:
+    0 10px 18px -10px rgba(0, 0, 0, 0.1),
+    0 3px 6px -4px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.todo:hover {
+  border-color: var(--hairline-strong);
 }
 
 .todo__check {
@@ -161,7 +170,7 @@
 
 @media (max-width: 420px) {
   .app {
-    padding: 48px 16px 40px;
+    padding: 96px 16px 40px;
   }
 
   .composer {
