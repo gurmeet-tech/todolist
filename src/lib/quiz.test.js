@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { BANK, QUESTION_TIME, ROUND_SIZE, makeRound, shuffle } from './quiz';
+import { QUESTION_TIME, ROUND_SIZE, makeRound, shuffle } from './quiz';
 
 describe('shuffle', () => {
   it('keeps the same elements', () => {
@@ -16,28 +16,35 @@ describe('shuffle', () => {
 });
 
 describe('makeRound', () => {
-  it('returns a round of unique questions', () => {
+  it('builds a full round of unique questions', () => {
     const round = makeRound();
     expect(round).toHaveLength(ROUND_SIZE);
     expect(new Set(round.map(item => item.q)).size).toBe(ROUND_SIZE);
   });
 
-  it('places the answer among the options', () => {
+  it('gives every question four unique options including the answer exactly once', () => {
     for (const item of makeRound()) {
+      expect(item.options).toHaveLength(4);
+      expect(new Set(item.options).size).toBe(4);
       expect(item.options).toContain(item.answer);
+      expect(item.options.filter(option => option === item.answer)).toHaveLength(1);
     }
   });
 
-  it('avoids excluded prompts when the pool is large enough', () => {
+  it('avoids excluded prompts when generating the next round', () => {
     const excluded = makeRound().map(item => item.q);
     const overlap = makeRound(excluded).filter(item => excluded.includes(item.q));
     expect(overlap).toHaveLength(0);
   });
+
+  it('spreads questions across more than one topic', () => {
+    const topics = new Set(makeRound().map(item => item.topic));
+    expect(topics.size).toBeGreaterThan(1);
+  });
 });
 
 describe('constants', () => {
-  it('has a bank at least as large as a round and a positive timer', () => {
-    expect(BANK.length).toBeGreaterThanOrEqual(ROUND_SIZE);
+  it('uses a positive timer', () => {
     expect(QUESTION_TIME).toBeGreaterThan(0);
   });
 });
