@@ -46,7 +46,7 @@ button {
   font-family: inherit;
 }
 
-:focus-visible {
+button:focus-visible {
   outline: 2px solid rgba(17, 17, 17, 0.35);
   outline-offset: 2px;
 }

@@ -36,11 +36,6 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-.composer:focus-within {
-  border-color: var(--hairline-strong);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-}
-
 .composer__input {
   flex: 1 1 auto;
   min-width: 0;
@@ -69,7 +64,6 @@
   border-radius: var(--radius-full);
   background: var(--ink);
   color: #ffffff;
-  cursor: pointer;
   transition: transform 150ms ease, opacity 150ms ease;
 }
 
@@ -135,7 +129,6 @@
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--faint);
-  cursor: pointer;
   opacity: 0;
   transition: opacity 150ms ease, color 150ms ease, background 150ms ease;
 }
