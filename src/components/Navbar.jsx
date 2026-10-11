@@ -1,9 +1,9 @@
-import { GameController02Icon, Tick02Icon } from '@hugeicons/core-free-icons';
+import { ChartLineData01Icon, GameController02Icon, Tick02Icon } from '@hugeicons/core-free-icons';
 
 import Icon from './Icon';
 import './Navbar.css';
 
-export default function Navbar({ onPlay }) {
+export default function Navbar({ onPlay, onStudy }) {
   return (
     <header className="nav">
       <nav className="nav__glass" aria-label="Primary">
@@ -13,10 +13,16 @@ export default function Navbar({ onPlay }) {
           </span>
           <span className="nav__name">Todo</span>
         </span>
-        <button type="button" className="nav__play" onClick={onPlay}>
-          <Icon icon={GameController02Icon} size={16} strokeWidth={2} />
-          <span>Play</span>
-        </button>
+        <div className="nav__actions">
+          <button type="button" className="nav__study" onClick={onStudy}>
+            <Icon icon={ChartLineData01Icon} size={16} strokeWidth={2} />
+            <span>Study</span>
+          </button>
+          <button type="button" className="nav__play" onClick={onPlay}>
+            <Icon icon={GameController02Icon} size={16} strokeWidth={2} />
+            <span>Play</span>
+          </button>
+        </div>
       </nav>
     </header>
   );

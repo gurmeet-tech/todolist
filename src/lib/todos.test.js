@@ -13,14 +13,16 @@ describe('makeId', () => {
 });
 
 describe('sortTodos', () => {
-  it('orders active before done, then urgent before day', () => {
+  it('orders active before done, then urgent before day before study', () => {
     const todos = [
       { id: '1', text: 'a', done: true, type: 'urgent' },
       { id: '2', text: 'b', done: false, type: 'day' },
       { id: '3', text: 'c', done: false, type: 'urgent' },
-      { id: '4', text: 'd', done: true, type: 'day' }
+      { id: '4', text: 'd', done: true, type: 'day' },
+      { id: '5', text: 'e', done: false, type: 'study' },
+      { id: '6', text: 'f', done: true, type: 'study' }
     ];
-    expect(sortTodos(todos).map(todo => todo.id)).toEqual(['3', '2', '1', '4']);
+    expect(sortTodos(todos).map(todo => todo.id)).toEqual(['3', '2', '5', '1', '4', '6']);
   });
 
   it('preserves insertion order within a group', () => {

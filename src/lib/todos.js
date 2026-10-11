@@ -3,7 +3,8 @@
  * @property {string} id
  * @property {string} text
  * @property {boolean} done
- * @property {'urgent' | 'day'} type
+ * @property {'urgent' | 'day' | 'study'} type
+ * @property {string} [subject]
  */
 
 /** Generate a collision-resistant id. @returns {string} */
@@ -12,12 +13,13 @@ export const makeId = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-/** Sort rank: active before done, then urgent before day. @param {Todo} todo */
-const rank = todo => (todo.done ? 1 : 0) * 2 + (todo.type === 'urgent' ? 0 : 1);
+/** Sort rank: active before done, then urgent before day before study. @param {Todo} todo */
+const TYPE_RANK = { urgent: 0, day: 1, study: 2 };
+const rank = todo => (todo.done ? 1 : 0) * 3 + (TYPE_RANK[todo.type] ?? 1);
 
 /**
- * Active tasks first, then urgent before day, preserving insertion order within
- * each group. Returns a new array.
+ * Active tasks first, then urgent before day before study, preserving insertion
+ * order within each group. Returns a new array.
  * @param {Todo[]} todos
  * @returns {Todo[]}
  */

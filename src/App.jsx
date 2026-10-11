@@ -5,17 +5,21 @@ import { ListViewIcon, Mic01Icon, PlusSignIcon } from '@hugeicons/core-free-icon
 import Icon from './components/Icon';
 import Navbar from './components/Navbar';
 import MathGame from './components/MathGame';
+import Study from './components/Study';
 import TodoItem from './components/TodoItem';
 import useLocalStorage from './hooks/useLocalStorage';
 import { makeId, sortTodos } from './lib/todos';
+import { GAIN, LOSS, extractSubject } from './lib/study';
 import './App.css';
 
 export default function App() {
   const [todos, setTodos] = useLocalStorage('todos', []);
+  const [studyLog, setStudyLog] = useLocalStorage('study-log', []);
   const [draft, setDraft] = useState('');
   const [asking, setAsking] = useState(false);
   const [listening, setListening] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [studying, setStudying] = useState(false);
   const [undo, setUndo] = useState(null);
   const inputRef = useRef(null);
   const askUrgentRef = useRef(null);
@@ -72,7 +76,16 @@ export default function App() {
     type => {
       const value = draft.trim();
       if (value) {
-        setTodos(prev => [{ id: makeId(), text: value, done: false, type }, ...prev]);
+        setTodos(prev => [
+          {
+            id: makeId(),
+            text: value,
+            done: false,
+            type,
+            ...(type === 'study' ? { subject: extractSubject(value) } : {})
+          },
+          ...prev
+        ]);
       }
       stopMic();
       setDraft('');
@@ -89,13 +102,14 @@ export default function App() {
       if (event.key === 'Escape') setAsking(false);
       else if (event.key === '1') confirmAdd('urgent');
       else if (event.key === '2') confirmAdd('day');
+      else if (event.key === '3') confirmAdd('study');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [asking, confirmAdd]);
 
   useEffect(() => {
-    if (asking || playing) return undefined;
+    if (asking || playing || studying) return undefined;
     const onKey = event => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target;
@@ -109,7 +123,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [asking, playing]);
+  }, [asking, playing, studying]);
 
   useEffect(() => {
     if (!undo) return undefined;
@@ -117,8 +131,22 @@ export default function App() {
     return () => clearTimeout(id);
   }, [undo]);
 
-  const toggle = (id, done) =>
-    setTodos(prev => prev.map(todo => (todo.id === id ? { ...todo, done } : todo)));
+  const toggle = (id, done) => {
+    const todo = todos.find(item => item.id === id);
+    if (todo && todo.type === 'study' && todo.done !== done) {
+      setStudyLog(log => [
+        ...log,
+        {
+          id: makeId(),
+          todoId: todo.id,
+          subject: todo.subject || extractSubject(todo.text),
+          delta: done ? GAIN : -LOSS,
+          at: Date.now()
+        }
+      ]);
+    }
+    setTodos(prev => prev.map(item => (item.id === id ? { ...item, done } : item)));
+  };
 
   const remove = id => {
     const todo = todos.find(item => item.id === id);
@@ -145,7 +173,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Navbar onPlay={() => setPlaying(true)} />
+      <Navbar onPlay={() => setPlaying(true)} onStudy={() => setStudying(true)} />
 
       <main className="shell">
         <h1 className="title">Todo</h1>
@@ -192,6 +220,10 @@ export default function App() {
               <span className="dot dot--day" aria-hidden="true" />
               Day
             </button>
+            <button type="button" className="ask__option" onClick={() => confirmAdd('study')}>
+              <span className="dot dot--study" aria-hidden="true" />
+              Study
+            </button>
             <button
               type="button"
               className="ask__cancel"
@@ -232,6 +264,10 @@ export default function App() {
       </main>
 
       {playing ? <MathGame onClose={() => setPlaying(false)} /> : null}
+
+      {studying ? (
+        <Study todos={todos} events={studyLog} onClose={() => setStudying(false)} />
+      ) : null}
 
       <AnimatePresence>
         {undo ? (
