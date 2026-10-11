@@ -8,6 +8,11 @@ import TodoItem from './components/TodoItem';
 import useLocalStorage from './hooks/useLocalStorage';
 import './App.css';
 
+const MODES = [
+  { id: 'day', label: 'Day' },
+  { id: 'urgent', label: 'Urgent' }
+];
+
 const makeId = () =>
   typeof crypto !== 'undefined' && crypto.randomUUID
     ? crypto.randomUUID()
@@ -16,13 +21,14 @@ const makeId = () =>
 export default function App() {
   const [todos, setTodos] = useLocalStorage('todos', []);
   const [draft, setDraft] = useState('');
+  const [mode, setMode] = useState('day');
   const [playing, setPlaying] = useState(false);
   const inputRef = useRef(null);
 
   const add = raw => {
     const value = raw.trim();
     if (!value) return;
-    setTodos(prev => [{ id: makeId(), text: value, done: false }, ...prev]);
+    setTodos(prev => [{ id: makeId(), text: value, done: false, type: mode }, ...prev]);
   };
 
   const handleSubmit = event => {
@@ -58,6 +64,22 @@ export default function App() {
             <Icon icon={PlusSignIcon} size={20} strokeWidth={2} />
           </button>
         </form>
+
+        <div className="modes" role="radiogroup" aria-label="Task type">
+          {MODES.map(item => (
+            <button
+              key={item.id}
+              type="button"
+              role="radio"
+              aria-checked={mode === item.id}
+              className={`mode${mode === item.id ? ' is-active' : ''}`}
+              onClick={() => setMode(item.id)}
+            >
+              <span className={`mode__dot mode__dot--${item.id}`} aria-hidden="true" />
+              {item.label}
+            </button>
+          ))}
+        </div>
 
         {todos.length > 0 ? (
           <ul className="list">

@@ -86,6 +86,7 @@ export default function PopGame({ onClose }) {
                 onClick={() => pop(index)}
                 initial={false}
                 animate={isPopped ? { scale: 0.66, opacity: 0.3 } : { scale: 1, opacity: 1 }}
+                whileHover={isPopped ? undefined : { scale: 1.08 }}
                 whileTap={isPopped ? { scale: 0.66 } : { scale: 0.9 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 18 }}
               />

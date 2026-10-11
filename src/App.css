@@ -33,7 +33,6 @@
   border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-whisper);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .composer__input {
@@ -64,19 +63,63 @@
   border-radius: var(--radius-full);
   background: var(--ink);
   color: #ffffff;
-  transition: transform 150ms ease, opacity 150ms ease;
-}
-
-.add:hover:not(:disabled) {
-  transform: scale(1.05);
-}
-
-.add:active:not(:disabled) {
-  transform: scale(0.94);
+  transition: transform 160ms var(--bounce), opacity 150ms ease;
 }
 
 .add:disabled {
   opacity: 0.3;
+}
+
+/* ---- Modes ---- */
+
+.modes {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 4px;
+  background: var(--elevated);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-whisper);
+}
+
+.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 180ms ease, color 180ms ease, transform 160ms var(--bounce);
+}
+
+.mode__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--faint);
+}
+
+.mode__dot--day {
+  background: var(--link);
+}
+
+.mode__dot--urgent {
+  background: var(--error);
+}
+
+.mode.is-active {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.mode.is-active .mode__dot {
+  background: #ffffff;
 }
 
 /* ---- List ---- */
@@ -99,7 +142,7 @@
   border: 1px solid var(--hairline);
   border-radius: 14px;
   box-shadow: var(--shadow-whisper);
-  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  transition: border-color 200ms ease, box-shadow 220ms ease, transform 200ms var(--bounce);
 }
 
 .todo.is-done {
@@ -110,13 +153,14 @@
   transform: translateY(-1px);
 }
 
-.todo:hover {
-  border-color: var(--hairline-strong);
+.todo__main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .todo__check {
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
+  min-height: 32px;
 }
 
 .todo__check .spring-check__label {
@@ -125,6 +169,42 @@
 
 .todo__check .spring-check__word {
   overflow-wrap: anywhere;
+}
+
+.tag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  background: #f4f4f4;
+  color: var(--body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tag__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--faint);
+}
+
+.tag--day .tag__dot {
+  background: var(--link);
+}
+
+.tag--urgent {
+  color: var(--error);
+  background: rgba(238, 0, 0, 0.07);
+}
+
+.tag--urgent .tag__dot {
+  background: var(--error);
 }
 
 .todo__delete {
@@ -147,11 +227,6 @@
   opacity: 1;
 }
 
-.todo__delete:hover {
-  color: var(--error);
-  background: rgba(238, 0, 0, 0.06);
-}
-
 @media (hover: none) {
   .todo__delete {
     opacity: 1;
@@ -166,6 +241,48 @@
   font-size: 15px;
   font-weight: 500;
   color: var(--mute);
+}
+
+/* ---- Desktop-only micro-interactions (hidden on touch) ---- */
+
+@media (hover: hover) and (pointer: fine) {
+  .add:hover:not(:disabled) {
+    transform: scale(1.08);
+  }
+
+  .add:active:not(:disabled) {
+    transform: scale(0.88);
+  }
+
+  .mode:hover:not(.is-active) {
+    background: #f4f4f4;
+    color: var(--ink);
+  }
+
+  .mode:active {
+    transform: scale(0.94);
+  }
+
+  .todo:hover {
+    transform: translateY(-2px);
+    border-color: var(--hairline-strong);
+    box-shadow:
+      0 12px 24px -12px rgba(0, 0, 0, 0.14),
+      0 4px 10px -6px rgba(0, 0, 0, 0.08);
+  }
+
+  .todo.is-done:hover {
+    transform: translateY(-3px);
+  }
+
+  .todo:active {
+    transform: translateY(-1px) scale(0.99);
+  }
+
+  .todo__delete:hover {
+    color: var(--error);
+    background: rgba(238, 0, 0, 0.06);
+  }
 }
 
 @media (max-width: 420px) {
