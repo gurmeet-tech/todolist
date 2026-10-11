@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ListViewIcon, Mic01Icon, PlusSignIcon } from '@hugeicons/core-free-icons';
 
 import Icon from './components/Icon';
@@ -15,6 +16,7 @@ export default function App() {
   const [asking, setAsking] = useState(false);
   const [listening, setListening] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [undo, setUndo] = useState(null);
   const inputRef = useRef(null);
   const askUrgentRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -92,12 +94,54 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [asking, confirmAdd]);
 
+  useEffect(() => {
+    if (asking || playing) return undefined;
+    const onKey = event => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      const typing =
+        target instanceof HTMLElement &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if (!typing && (event.key === 'n' || event.key === '/')) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [asking, playing]);
+
+  useEffect(() => {
+    if (!undo) return undefined;
+    const id = setTimeout(() => setUndo(null), 5000);
+    return () => clearTimeout(id);
+  }, [undo]);
+
   const toggle = (id, done) =>
     setTodos(prev => prev.map(todo => (todo.id === id ? { ...todo, done } : todo)));
 
-  const remove = id => setTodos(prev => prev.filter(todo => todo.id !== id));
+  const remove = id => {
+    const todo = todos.find(item => item.id === id);
+    if (!todo) return;
+    setUndo(prev => ({ items: [...(prev?.items ?? []), todo], label: 'Task deleted' }));
+    setTodos(prev => prev.filter(item => item.id !== id));
+  };
+
+  const clearCompleted = () => {
+    const done = todos.filter(item => item.done);
+    if (done.length === 0) return;
+    setUndo({ items: done, label: 'Completed cleared' });
+    setTodos(prev => prev.filter(item => !item.done));
+  };
+
+  const undoRemove = () => {
+    if (!undo) return;
+    setTodos(prev => [...undo.items, ...prev]);
+    setUndo(null);
+  };
 
   const ordered = useMemo(() => sortTodos(todos), [todos]);
+  const hasCompleted = todos.some(todo => todo.done);
 
   return (
     <div className="app">
@@ -160,11 +204,22 @@ export default function App() {
         ) : null}
 
         {todos.length > 0 ? (
-          <ul className="list">
-            {ordered.map(todo => (
-              <TodoItem key={todo.id} todo={todo} onToggle={toggle} onDelete={remove} />
-            ))}
-          </ul>
+          <>
+            <ul className="list">
+              <AnimatePresence initial={false}>
+                {ordered.map(todo => (
+                  <TodoItem key={todo.id} todo={todo} onToggle={toggle} onDelete={remove} />
+                ))}
+              </AnimatePresence>
+            </ul>
+            {hasCompleted ? (
+              <div className="listfoot">
+                <button type="button" className="clear" onClick={clearCompleted}>
+                  Clear completed
+                </button>
+              </div>
+            ) : null}
+          </>
         ) : (
           <div className="empty">
             <span className="empty__icon" aria-hidden="true">
@@ -177,6 +232,25 @@ export default function App() {
       </main>
 
       {playing ? <MathGame onClose={() => setPlaying(false)} /> : null}
+
+      <AnimatePresence>
+        {undo ? (
+          <motion.div
+            className="toastwrap"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+          >
+            <div className="toast" role="status" aria-live="polite">
+              <span className="toast__text">{undo.label}</span>
+              <button type="button" className="toast__undo" onClick={undoRemove}>
+                Undo
+              </button>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

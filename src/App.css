@@ -198,6 +198,10 @@
   padding: 0;
 }
 
+.todo__item {
+  list-style: none;
+}
+
 .todo {
   display: flex;
   align-items: center;
@@ -341,6 +345,71 @@
   color: var(--mute);
 }
 
+/* ---- List footer ---- */
+
+.listfoot {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 0;
+}
+
+.clear {
+  border: 0;
+  background: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  color: var(--mute);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
+}
+
+/* ---- Undo toast ---- */
+
+.toastwrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 8px 8px 18px;
+  background: var(--ink);
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.45);
+}
+
+.toast__text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.toast__undo {
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 150ms ease;
+}
+
 /* ---- Desktop-only micro-interactions (hidden on touch) ---- */
 
 @media (hover: hover) and (pointer: fine) {
@@ -388,6 +457,15 @@
   .todo__delete:hover {
     color: var(--error);
     background: rgba(238, 0, 0, 0.06);
+  }
+
+  .clear:hover {
+    color: var(--ink);
+    background: #f2f2f2;
+  }
+
+  .toast__undo:hover {
+    background: rgba(255, 255, 255, 0.24);
   }
 }
 
