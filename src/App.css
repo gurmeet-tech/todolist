@@ -52,6 +52,42 @@
   color: var(--faint);
 }
 
+.mic {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-full);
+  background: var(--elevated);
+  color: var(--body);
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease,
+    transform 160ms var(--bounce);
+}
+
+.mic:disabled {
+  opacity: 0.35;
+}
+
+.mic.is-listening {
+  color: #ffffff;
+  background: var(--error);
+  border-color: var(--error);
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(238, 0, 0, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(238, 0, 0, 0);
+  }
+}
+
 .add {
   flex: none;
   display: inline-flex;
@@ -70,20 +106,40 @@
   opacity: 0.3;
 }
 
-/* ---- Modes ---- */
+/* ---- Ask (choose type) ---- */
 
-.modes {
+.ask {
   display: inline-flex;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
   margin-top: 12px;
-  padding: 4px;
+  padding: 6px 8px 6px 14px;
   background: var(--elevated);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-whisper);
+  animation: ask-in 220ms var(--bounce);
 }
 
-.mode {
+@keyframes ask-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ask__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mute);
+}
+
+.ask__option {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -92,11 +148,22 @@
   border: 0;
   border-radius: var(--radius-full);
   background: transparent;
-  color: var(--body);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
-  transition: background 180ms ease, color 180ms ease, transform 160ms var(--bounce);
+  transition: background 160ms ease, transform 160ms var(--bounce);
 }
+
+.ask__cancel {
+  border: 0;
+  background: none;
+  padding: 0 8px;
+  color: var(--mute);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---- Type dots ---- */
 
 .mode__dot {
   width: 7px;
@@ -111,15 +178,6 @@
 
 .mode__dot--urgent {
   background: var(--error);
-}
-
-.mode.is-active {
-  background: var(--ink);
-  color: #ffffff;
-}
-
-.mode.is-active .mode__dot {
-  background: #ffffff;
 }
 
 /* ---- List ---- */
@@ -254,12 +312,20 @@
     transform: scale(0.88);
   }
 
-  .mode:hover:not(.is-active) {
-    background: #f4f4f4;
+  .mic:hover:not(:disabled) {
     color: var(--ink);
+    border-color: var(--hairline-strong);
   }
 
-  .mode:active {
+  .mic:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+
+  .ask__option:hover {
+    background: #f4f4f4;
+  }
+
+  .ask__option:active {
     transform: scale(0.94);
   }
 
